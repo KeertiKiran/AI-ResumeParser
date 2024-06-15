@@ -33,7 +33,7 @@ app.add_middleware(
 
 ai_parser = AIParser(
     api_key=getenv("API_KEY"),
-    history_file="history/history.json"
+    history_file="history.json"
 )
 
 

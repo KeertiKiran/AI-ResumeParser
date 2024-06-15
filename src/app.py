@@ -107,12 +107,3 @@ async def parse_pdfs(resumes: list[UploadFile], jd_text: UploadFile):
         status_code=200,
         content=result
     )
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(
-        app,
-        host=getenv("SERVER_HOST", "localhost"),
-        port=int(getenv("SERVER_PORT", 8000))
-    )

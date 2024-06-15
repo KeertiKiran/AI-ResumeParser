@@ -1,0 +1,12 @@
+{
+  "compliant": "number%",
+  "name": "string",
+  "mobile": ["string"],
+  "email": ["string"],
+  "companies_worked_for": ["string"],
+  "experience_total": "number",
+  "experience_relevant": "number",
+  "major_tech_stack": ["string"],
+  "certifications": ["string"],
+  "domains_experience": ["string"]
+}

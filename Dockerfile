@@ -12,10 +12,12 @@ WORKDIR /app
 COPY src/ .
 COPY history .
 COPY requirements.txt .
+COPY gunicorn.conf.py .
 
 # Install any dependencies
 RUN pip install -r requirements.txt
 
 EXPOSE 2000
 
-CMD [ "gunicorn", "app:app", "--bind", "0.0.0.0:2000"]
+CMD [ "gunicorn", "app:app"]
+

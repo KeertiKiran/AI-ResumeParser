@@ -1,10 +1,12 @@
 import json
+from util import ensure_path
 
 class History:
     def __init__(self, history_file: str = "history.json", history_length: int = 10 * 1000):
         self.history: list[dict] = None
         self.history_file = history_file
         self.history_length = history_length
+
 
     def connect(self):
         with open(self.history_file, "r") as f:

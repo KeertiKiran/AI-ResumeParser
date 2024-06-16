@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile
+from fastapi.responses import StreamingResponse
 from os import getenv
 from ai_backend import AIParser
 from pypdf import PdfReader
@@ -6,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from typing import List, AnyStr, Dict
+from typing import BinaryIO, List, AnyStr, Dict, Union
 from multiprocessing.pool import Pool
 
 load_dotenv()
@@ -34,87 +35,53 @@ app.add_middleware(
 
 ai_parser = AIParser(
     api_key=getenv("API_KEY"),
-    history_file="history.json"
 )
 
+parse_proxy = ai_parser.parse
+
+def pdf_to_text(file: BinaryIO):
+    return "".join([ x.extract_text('layout') for x in PdfReader(file).pages ])
+
+def job_to_text(file: BinaryIO):
+    return file.read().decode("utf-8", "ignore")
 
 # /parse_pdf endpoint
 # Accepts a POST request with a PDF file and a job description text
-@app.post("/parse_pdf", response_class=JSONResponse, response_model=OutputResponse)
-async def parse_pdf(resume: UploadFile, jd_text: UploadFile):
+# parse the PDF/text and job description file/text and return the parsed data
+@app.post("/parse_pdf")
+async def parse_pdf(resume: UploadFile, job_description: UploadFile):
     if resume.content_type != "application/pdf":
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Invalid file type for resume. Please upload a PDF file."}
-        )
+        return JSONResponse(status_code=400, content={"error": "Only PDF files are allowed"})
 
-    if jd_text.content_type != "text/plain":
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Invalid file type for jd_text. Please upload a text file."}
-        )
+    resume_text = pdf_to_text(resume.file)
+    job_description_text = job_to_text(job_description.file)
 
-    jd_text = jd_text.file.read().decode("utf-8", "ignore")
+    return await parse_proxy(resume_text, job_description_text)
 
-    resume_text = str().join(
-        [
-            page.extract_text(extraction_mode="layout")
-            for page in PdfReader(resume.file).pages
-        ]
-    )
-
-    response = await ai_parser.parse(resume_text, jd_text)
-    return JSONResponse(
-        status_code=200,
-        content=response
-    )
+@app.post("/parse_text")
+async def parse_text(resume: AnyStr, job_description: AnyStr):
+    return await parse_proxy(resume, job_description)
 
 
-@app.post("/parse_text", response_class=JSONResponse, response_model=OutputResponse)
-async def parse_text(resume_text: str, jd_text: str):
-    response = await ai_parser.parse(resume_text, jd_text)
-    return JSONResponse(
-        status_code=200,
-        content=response
-    )
+@app.post("/parse_pdf/stream")
+async def parse_pdf_and_stream_response(resume: UploadFile, job_description: UploadFile) -> StreamingResponse:
+    if resume.content_type != "application/pdf":
+        return JSONResponse(status_code=400, content={"error": "Only PDF files are allowed"})
 
+    resume_text = pdf_to_text(resume.file)
+    job_description_text = job_to_text(job_description.file)
 
-@app.post("/parse_pdfs", response_class=JSONResponse, response_model=Dict[str, OutputResponse])
-async def parse_pdfs(resumes: list[UploadFile], jd_text: UploadFile):
-    resume_texts = [
-        str().join(
-            [
-                page.extract_text(extraction_mode="layout")
-                for page in PdfReader(resume.file).pages
-            ]
-        )
-        for resume in resumes
-    ]
+    def _yield():
+        for res in ai_parser.parse_s(resume_text, job_description_text):
+            yield res.text
 
-    jd_text = jd_text.file.read().decode("utf-8", "ignore")
+    return StreamingResponse(content=_yield(), media_type="application/json")
 
-    # responses = [
-    #     await ai_parser.parse(resume_text, jd_text)
-    #     for resume_text in resume_texts
-    # ]
-    
-    # Use a pool of workers to parallelize the parsing
-    with Pool() as pool:
-        responses = pool.starmap(
-            lambda: await ai_parser.parse,
-            zip(resume_texts, [jd_text] * len(resume_texts))
-        )
+@app.post("/parse_text/stream")
+async def parse_text_and_stream_response(resume: AnyStr, job_description: AnyStr) -> StreamingResponse:
+    def _yield():
+        for res in ai_parser.parse_s(resume, job_description):
+            yield res.text
 
-    
-    print(responses)
+    return StreamingResponse(content=_yield(), media_type="application/json")
 
-    # Map the filenames to the responses
-    result = {
-        resume.filename: response
-        for resume, response in zip(resumes, responses)
-    }
-
-    return JSONResponse(
-        status_code=200,
-        content=result
-    )

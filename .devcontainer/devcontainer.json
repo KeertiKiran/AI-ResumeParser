@@ -11,7 +11,16 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"senpai1.discord-vscode-theme"
+				"senpai1.discord-vscode-theme",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"njpwerner.autodocstring",
+				"ms-azuretools.vscode-docker",
+				"VisualStudioExptTeam.intellicode-api-usage-examples",
+				"wholroyd.jinja",
+				"ms-python.vscode-pylance",
+				"ms-python.python",
+				"ms-python.debugpy",
+				"KevinRose.vsc-python-indent"
 			]
 		}
 	}

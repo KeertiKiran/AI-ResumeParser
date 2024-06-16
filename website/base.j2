@@ -24,6 +24,26 @@
         100% { color: rgb(238, 130, 238); } /* Violet */
     }
 
+
+    @keyframes chroma-border {
+        0% { border-color: rgb(255, 0, 0); } /* Red */
+        16.67% { border-color: rgb(255, 165, 0); } /* Orange */
+        33.33% { border-color: rgb(255, 255, 0); } /* Yellow */
+        50% { border-color: rgb(0, 128, 0); } /* Green */
+        66.67% { border-color: rgb(0, 0, 255); } /* Blue */
+        83.33% { border-color: rgb(75, 0, 130); } /* Indigo */
+        100% { border-color: rgb(238, 130, 238); } /* Violet */
+    }
+
+    .chroma-b {
+        animation: chroma-border 2s linear infinite;
+    }
+
+    #chroma-b {
+        border: .2em solid;
+        animation: chroma-border 2s linear infinite;
+    }
+
     .chroma-animation p {
         display: inline-block;
         white-space: nowrap;

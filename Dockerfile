@@ -13,4 +13,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 2000
 
-CMD [ "gunicorn", "app:app"]
+CMD [ "sudo", "sh", "run.sh" ]

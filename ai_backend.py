@@ -3,7 +3,6 @@ import json
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from dataclasses import dataclass
-from history import History
 
 output_schema = {
   "compliant": "number%",
@@ -69,7 +68,6 @@ domains_experience: Any domain experience he/she has (financial/retail/marketing
 @dataclass
 class AIParser:
     api_key: str
-    history_file: str
 
     def __post_init__(self):
         genai.configure(api_key=self.api_key)
@@ -81,9 +79,6 @@ class AIParser:
             "max_output_tokens": 8192,
             "response_mime_type": "application/json",
         }
-
-        self.history = History(self.history_file)
-        self.history.connect()
 
         self.model = genai.GenerativeModel(
             model_name="gemini-1.5-pro",
@@ -98,7 +93,7 @@ class AIParser:
         )
 
         self.chat_session = self.model.start_chat(
-            history=self.history.dump(),
+            history=[],
         )
 
     @staticmethod
@@ -118,12 +113,18 @@ class AIParser:
             _resume_json,
             stream=False,
         )
-        self.history.add("user", _resume_json)
-        self.history.add("model", response.text)
-
-        self.history.dumpbuffer()
         return json.loads(response.text)
 
+    def parse_s(self, resume_text: str, jd_text: str) -> dict:
+        _resume_json = json.dumps(
+            {
+                "resume-text": AIParser.sanitize_input(resume_text),
+                "jd-text": AIParser.sanitize_input(jd_text)
+            }
+        )
 
-    def close(self):
-        self.history.dumpbuffer()
+        response = self.chat_session.send_message(
+            _resume_json,
+            stream=True,
+        )
+        return response

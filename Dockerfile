@@ -2,9 +2,6 @@ FROM python:3.12
 LABEL authors="Advik"
 LABEL description="This is a custom image for the ResumeParser API"
 
-# Set environment variables
-ENV API_KEY="AIzaSyDUhsbslsK7JC23JbmVzAZyRsuyUWoL4EA"
-
 # Set the working directory in the container
 WORKDIR /app
 

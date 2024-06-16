@@ -5,11 +5,8 @@ LABEL description="This is a custom image for the ResumeParser API"
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY src/ .
-COPY history .
-COPY requirements.txt .
-COPY gunicorn.conf.py .
+# Copy files to the working directory
+COPY . .
 
 # Install any dependencies
 RUN pip install -r requirements.txt
@@ -17,4 +14,3 @@ RUN pip install -r requirements.txt
 EXPOSE 2000
 
 CMD [ "gunicorn", "app:app"]
-

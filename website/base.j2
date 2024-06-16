@@ -3,16 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <title>AI resume parser - By Advik {% block title_ext %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <style>
-{% block stylesheets %}
-body {
-    @apply bg-gray-100 text-gray-900 p-4 m-4;
-}
-{% endblock %}
+    .chroma-animation {
+        animation: chroma 2s linear infinite;
+    }
+
+    @keyframes chroma {
+        0% { color: rgb(255, 0, 0); } /* Red */
+        16.67% { color: rgb(255, 165, 0); } /* Orange */
+        33.33% { color: rgb(255, 255, 0); } /* Yellow */
+        50% { color: rgb(0, 128, 0); } /* Green */
+        66.67% { color: rgb(0, 0, 255); } /* Blue */
+        83.33% { color: rgb(75, 0, 130); } /* Indigo */
+        100% { color: rgb(238, 130, 238); } /* Violet */
+    }
+
+    .chroma-animation p {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 100%;
+    }
 </style>
 
 <body>

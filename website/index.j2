@@ -1,10 +1,33 @@
 {% extends "base.j2" %}
 
-{# Set title #}
-{% block title %}Home{% endblock %}
-
-{# Define block content #}
 {% block content %}
-    <h1>Home</h1>
-    <p>Welcome to the home page!</p>
+    {# AI resume parser text must have a chroma animation #}
+    <div class="flex justify-center mt-10">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold flex"> <div class="chroma-animation ">AI</div>Resume Parser</h1>
+            <p class="text-lg">Upload your resume and get the data extracted</p>
+        </div>
+    </div>
+
+
+    {# Allowed urls are: 
+    /upload to process a single resume
+    /upload_bulk to process multiple resumes
+    /docs to see the API documentation (swagger)
+    /redoc to see the alternative API documentation (redoc)
+    #}
+
+    {# A link box #}
+    <div class="flex justify-center mt-10">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <a href="/upload" class="p-4 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600">Process a single resume</a>
+            <a href="/upload_bulk" class="p-4 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600">Process multiple resumes</a>
+            <a href="/docs" class="p-4 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600">API documentation</a>
+            <a href="/redoc" class="p-4 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600">Alternative API documentation</a>
+        </div>
+    </div>
+    {# Add a wide button to download openapi.json #}
+    <div class="flex justify-center mt-10">
+        <a href="/openapi.json" class="p-4 bg-green-500 text-white text-center rounded-lg hover:bg-blue-600">Download OpenAPI specification</a>
+    </div>
 {% endblock %}

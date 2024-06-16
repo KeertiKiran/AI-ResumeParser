@@ -3,3 +3,4 @@ google-generativeai
 fastapi
 gunicorn
 uvicorn
+jinja2

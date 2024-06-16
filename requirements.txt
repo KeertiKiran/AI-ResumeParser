@@ -4,3 +4,4 @@ fastapi
 gunicorn
 uvicorn
 jinja2
+sentry-sdk[fastapi]

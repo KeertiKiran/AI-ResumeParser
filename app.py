@@ -94,3 +94,6 @@ async def parse_text_and_stream_response(resume: AnyStr, job_description: AnyStr
 async def root(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("index.j2", context={"request": request})
     
+@app.get("/upload")
+async def upload(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse("upload.j2", context={"request": request})

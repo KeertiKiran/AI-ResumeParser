@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, UploadFile, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import StreamingResponse, HTMLResponse
 from os import getenv
 from ai_backend import AIParser
 from pypdf import PdfReader
@@ -8,9 +9,10 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import BinaryIO, List, AnyStr, Dict, Union
-from multiprocessing.pool import Pool
+from pathlib import Path
 
 load_dotenv()
+templates = Jinja2Templates(directory="website")
 
 class OutputResponse(BaseModel):
     compliant: AnyStr  # Max score is 100%
@@ -32,6 +34,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
 )
+
+# Template renderer
 
 ai_parser = AIParser(
     api_key=getenv("API_KEY"),
@@ -85,3 +89,8 @@ async def parse_text_and_stream_response(resume: AnyStr, job_description: AnyStr
 
     return StreamingResponse(content=_yield(), media_type="application/json")
 
+
+@app.get("/")
+async def root(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse("index.j2", context={"request": request})
+    

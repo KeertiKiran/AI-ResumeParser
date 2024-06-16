@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import List, AnyStr, Dict
+from multiprocessing.pool import Pool
 
 load_dotenv()
 
@@ -92,10 +93,20 @@ async def parse_pdfs(resumes: list[UploadFile], jd_text: UploadFile):
 
     jd_text = jd_text.file.read().decode("utf-8", "ignore")
 
-    responses = [
-        await ai_parser.parse(resume_text, jd_text)
-        for resume_text in resume_texts
-    ]
+    # responses = [
+    #     await ai_parser.parse(resume_text, jd_text)
+    #     for resume_text in resume_texts
+    # ]
+    
+    # Use a pool of workers to parallelize the parsing
+    with Pool() as pool:
+        responses = pool.starmap(
+            lambda: await ai_parser.parse,
+            zip(resume_texts, [jd_text] * len(resume_texts))
+        )
+
+    
+    print(responses)
 
     # Map the filenames to the responses
     result = {

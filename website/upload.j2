@@ -5,7 +5,7 @@
 {% block content %}
 <div class="flex justify-center mt-10">
     <div class="text-center">
-        <h1 class="text-4xl font-bold flex">Upload <div class="px-2 chroma-animation">Single</div> Resume</h1>
+        <h1 class="text-4xl font-bold flex">Upload <div class="px-1 chroma-animation">Single</div> Resume</h1>
         <p class="text-lg">Upload your resume and get the data extracted</p>
     </div>
 </div>
@@ -34,16 +34,20 @@
 </div>
 
 <div class="flex justify-center mt-10">
-    <button id="uploadButton" class="py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg">You know what to do ;)</button>
+    <button id="uploadButton" class="py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg">Upload Resume and Parse PDF</button>
 </div>
 
+<div class="flex justify-center mt-10">
+    <div id="jsonEditor" class="w-full max-w-md h-80 border-2 border-gray-300 rounded-lg"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     $(document).ready(function() {
         const $dropArea = $('#dropArea');
         const $fileInput = $('#fileInput');
-        const $fileLabel = $('label[for="fileInput"]');
         const $fileNameDisplay = $('#fileName');
-        const $jobDescriptionFileInput = $('#jobDescriptionFileInput');
         const $jobDescriptionTextarea = $('#jobDescription');
 
         $dropArea.on('dragover', function(event) {
@@ -76,30 +80,43 @@
             }
         });
 
-        $fileLabel.on('click', function(event) {
-            event.preventDefault();
-        });
-
         function updateFileNameDisplay(fileName) {
             $fileNameDisplay.text(`Selected file: ${fileName}`);
         }
 
-        $jobDescriptionFileInput.on('change', function() {
-            const files = $jobDescriptionFileInput[0].files;
-            if (files.length) {
-                const file = files[0];
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    $jobDescriptionTextarea.val(event.target.result);
-                };
-                reader.readAsText(file);
-            }
+        $('#uploadButton').on('click', function() {
+            const formData = new FormData();
+            const resumeFile = $fileInput[0].files[0];
+            formData.append('resume', resumeFile);
+            formData.append('job_description', $jobDescriptionTextarea.val());
+
+            axios.post('/parse_pdf', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then(function(response) {
+                // Handle successful response
+                const data = response.data;
+                displayJsonResult(data);
+            })
+            .catch(function(error) {
+                // Handle error
+                console.error('Error:', error);
+            });
         });
 
-        $('label[for="jobDescriptionFileInput"]').on('click', function(event) {
-            event.preventDefault();
-            $jobDescriptionFileInput.click();
-        });
+        function displayJsonResult(data) {
+            const jsonEditor = monaco.editor.create(document.getElementById('jsonEditor'), {
+                value: JSON.stringify(data, null, 2),
+                language: 'json',
+                readOnly: true,
+                theme: 'vs-dark',
+                automaticLayout: true,
+                contextmenu: false,
+                minimap: { enabled: false }
+            });
+        }
     });
 </script>
 {% endblock %}

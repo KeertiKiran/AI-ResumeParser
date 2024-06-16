@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - resume-api-test
+name: Build and deploy Python app to Azure Web App - MBAP-Resume-Parser
 
 on:
   push:
@@ -65,14 +65,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C2901C8AC4734590AEFF6DDE8B691E49 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_009E0712D2B9462AAC3E7B59679BE096 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_50AE29C2801E4B54ACCDD571DEA2BE5C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0EFC67D20E4F451697DCE2F01761AF9B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4D57FC13F606405DB01207ED08674670 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_90F1BFA1DC3B4B1CB4CA3288B5449F88 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
-          app-name: 'resume-api-test'
+          app-name: 'MBAP-Resume-Parser'
           slot-name: 'Production'
           

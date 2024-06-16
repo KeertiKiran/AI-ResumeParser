@@ -3,10 +3,103 @@
 {% block title_ext %} | Upload Single file{% endblock %}
 
 {% block content %}
-    <div class="flex justify-center mt-10">
-        <div class="text-center">
-            <h1 class="text-4xl font-bold flex">Upload <div class="px-1 chroma-animation ">Single</div>Resume</h1>
-            <p class="text-lg">Upload your resume and get the data extracted</p>
-        </div>
+<div class="flex justify-center mt-10">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold flex">Upload <div class="px-2 chroma-animation">Single</div> Resume</h1>
+        <p class="text-lg">Upload your resume and get the data extracted</p>
     </div>
+</div>
+
+<div class="flex justify-center mt-10">
+    <div class="w-full max-w-md p-6 border-2 border-dashed border-gray-300 rounded-lg text-center">
+        <input id="fileInput" type="file" class="hidden" />
+        <label for="fileInput" class="block w-full h-32 cursor-pointer">
+            <div id="dropArea" class="flex flex-col items-center justify-center h-full space-y-2">
+                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V8m4 8V8m4 8V8M5 16l7 7 7-7"></path>
+                </svg>
+                <p class="text-gray-500">Drag and drop your resume here or click to upload</p>
+            </div>
+        </label>
+        <p id="fileName" class="text-gray-500 mt-2"></p>
+    </div>
+</div>
+
+<div class="flex justify-center mt-10">
+    <div class="w-full max-w-md p-6 border-2 border-gray-300 rounded-lg text-center">
+        <textarea id="jobDescription" rows="6" class="w-full p-2 border rounded-lg" placeholder="Paste or type the job description here..."></textarea>
+        <input id="jobDescriptionFileInput" type="file" class="hidden" accept=".txt" />
+        <label for="jobDescriptionFileInput" class="block mt-4 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg cursor-pointer">Or upload job description as a text file</label>
+    </div>
+</div>
+
+<div class="flex justify-center mt-10">
+    <button id="uploadButton" class="py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg">You know what to do ;)</button>
+</div>
+
+<script>
+    $(document).ready(function() {
+        const $dropArea = $('#dropArea');
+        const $fileInput = $('#fileInput');
+        const $fileLabel = $('label[for="fileInput"]');
+        const $fileNameDisplay = $('#fileName');
+        const $jobDescriptionFileInput = $('#jobDescriptionFileInput');
+        const $jobDescriptionTextarea = $('#jobDescription');
+
+        $dropArea.on('dragover', function(event) {
+            event.preventDefault();
+            $dropArea.addClass('bg-gray-100 border-blue-500');
+        });
+
+        $dropArea.on('dragleave', function() {
+            $dropArea.removeClass('bg-gray-100 border-blue-500');
+        });
+
+        $dropArea.on('drop', function(event) {
+            event.preventDefault();
+            $dropArea.removeClass('bg-gray-100 border-blue-500');
+            const files = event.originalEvent.dataTransfer.files;
+            if (files.length) {
+                $fileInput[0].files = files;
+                updateFileNameDisplay(files[0].name);
+            }
+        });
+
+        $dropArea.on('click', function() {
+            $fileInput.click();
+        });
+
+        $fileInput.on('change', function() {
+            const files = $fileInput[0].files;
+            if (files.length) {
+                updateFileNameDisplay(files[0].name);
+            }
+        });
+
+        $fileLabel.on('click', function(event) {
+            event.preventDefault();
+        });
+
+        function updateFileNameDisplay(fileName) {
+            $fileNameDisplay.text(`Selected file: ${fileName}`);
+        }
+
+        $jobDescriptionFileInput.on('change', function() {
+            const files = $jobDescriptionFileInput[0].files;
+            if (files.length) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    $jobDescriptionTextarea.val(event.target.result);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        $('label[for="jobDescriptionFileInput"]').on('click', function(event) {
+            event.preventDefault();
+            $jobDescriptionFileInput.click();
+        });
+    });
+</script>
 {% endblock %}

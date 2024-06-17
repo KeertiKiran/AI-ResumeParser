@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, Request
+from fastapi import FastAPI, UploadFile, Request, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import StreamingResponse, HTMLResponse
 from os import getenv
@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from typing import BinaryIO, List, AnyStr, Dict, Union
+from typing import BinaryIO, List, AnyStr, Dict, Union, Annotated
 from converter import convert_docx_to_string
 import sentry_sdk
 
@@ -43,6 +43,8 @@ class OutputResponse(BaseModel):
     domains_experience: List[AnyStr]
 
 
+class JobDescription(BaseModel): pass
+
 app = FastAPI()
 
 # Enable CORS
@@ -76,7 +78,7 @@ content_types = {
 }
 
 @app.post("/parse_pdf")
-async def parse_pdf(resume: UploadFile, job_description: str):
+async def parse_pdf(resume: UploadFile, job_description: Annotated[str, Body()]):
     # Check if the file is a PDF or a DOCX/DOC file
     filetype = content_types.get(resume.content_type)
     if not filetype:

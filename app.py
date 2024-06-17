@@ -53,14 +53,13 @@ def job_to_text(file: BinaryIO):
 # Accepts a POST request with a PDF file and a job description text
 # parse the PDF/text and job description file/text and return the parsed data
 @app.post("/parse_pdf")
-async def parse_pdf(resume: UploadFile, job_description: UploadFile):
+async def parse_pdf(resume: UploadFile, job_description: str):
     if resume.content_type != "application/pdf":
         return JSONResponse(status_code=400, content={"error": "Only PDF files are allowed"})
 
     resume_text = pdf_to_text(resume.file)
-    job_description_text = job_to_text(job_description.file)
 
-    return await parse_proxy(resume_text, job_description_text)
+    return await parse_proxy(resume_text, job_description)
 
 @app.post("/parse_text")
 async def parse_text(resume: AnyStr, job_description: AnyStr):

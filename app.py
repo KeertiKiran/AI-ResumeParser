@@ -9,8 +9,9 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import BinaryIO, List, AnyStr, Dict, Union
-from pathlib import Path
+from converter import convert_docx_to_pdf_in_memory
 import sentry_sdk
+
 
 sentry_sdk.init(
     dsn="https://3204939d18ce8486a4ac2d7d2f928e84@o1303859.ingest.us.sentry.io/4507441298866176",
@@ -26,6 +27,8 @@ sentry_sdk.init(
 
 load_dotenv()
 templates = Jinja2Templates(directory="website")
+
+
 
 class OutputResponse(BaseModel):
     compliant: AnyStr  # Max score is 100%
@@ -67,39 +70,19 @@ def job_to_text(file: BinaryIO):
 # parse the PDF/text and job description file/text and return the parsed data
 @app.post("/parse_pdf")
 async def parse_pdf(resume: UploadFile, job_description: str):
-    if resume.content_type != "application/pdf":
-        return JSONResponse(status_code=400, content={"error": "Only PDF files are allowed"})
+    # Check if the file is a PDF or a DOCX/DOC file
+    if resume.content_type != "application/pdf" and resume.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" and resume.content_type != "application/msword":
+        return JSONResponse(status_code=400, content={"error": "Only PDF/DOCX files are allowed"})
 
-    resume_text = pdf_to_text(resume.file)
+    # If the file is a DOCX/DOC file, convert it to PDF
+    if resume.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or resume.content_type != "application/msword":
+        resume_ = convert_docx_to_pdf_in_memory(resume.file)
+    else:
+        resume_ = resume.file
+    
+    resume_text = pdf_to_text(resume_)
 
     return await parse_proxy(resume_text, job_description)
-
-@app.post("/parse_text")
-async def parse_text(resume: AnyStr, job_description: AnyStr):
-    return await parse_proxy(resume, job_description)
-
-
-@app.post("/parse_pdf/stream")
-async def parse_pdf_and_stream_response(resume: UploadFile, job_description: UploadFile) -> StreamingResponse:
-    if resume.content_type != "application/pdf":
-        return JSONResponse(status_code=400, content={"error": "Only PDF files are allowed"})
-
-    resume_text = pdf_to_text(resume.file)
-    job_description_text = job_to_text(job_description.file)
-
-    def _yield():
-        for res in ai_parser.parse_s(resume_text, job_description_text):
-            yield res.text
-
-    return StreamingResponse(content=_yield(), media_type="application/json")
-
-@app.post("/parse_text/stream")
-async def parse_text_and_stream_response(resume: AnyStr, job_description: AnyStr) -> StreamingResponse:
-    def _yield():
-        for res in ai_parser.parse_s(resume, job_description):
-            yield res.text
-
-    return StreamingResponse(content=_yield(), media_type="application/json")
 
 
 @app.get("/")

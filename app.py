@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import BinaryIO, List, AnyStr, Dict, Union
-from converter import convert_docx_to_pdf_in_memory
+from converter import convert_docx_to_string
 import sentry_sdk
 
 
@@ -68,19 +68,24 @@ def job_to_text(file: BinaryIO):
 # /parse_pdf endpoint
 # Accepts a POST request with a PDF file and a job description text
 # parse the PDF/text and job description file/text and return the parsed data
+
+content_types = {
+    "application/pdf": "pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/msword": "docx",
+}
+
 @app.post("/parse_pdf")
 async def parse_pdf(resume: UploadFile, job_description: str):
     # Check if the file is a PDF or a DOCX/DOC file
-    if resume.content_type != "application/pdf" and resume.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" and resume.content_type != "application/msword":
-        return JSONResponse(status_code=400, content={"error": "Only PDF/DOCX files are allowed"})
-
-    # If the file is a DOCX/DOC file, convert it to PDF
-    if resume.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or resume.content_type != "application/msword":
-        resume_ = convert_docx_to_pdf_in_memory(resume.file)
-    else:
-        resume_ = resume.file
+    filetype = content_types.get(resume.content_type)
+    if not filetype:
+        return JSONResponse(status_code=400, content={"message": "Invalid file type, must be a PDF or DOCX/DOC file"})
     
-    resume_text = pdf_to_text(resume_)
+    if filetype == "docx":
+        resume_text = convert_docx_to_string(resume.file)
+    else:
+        resume_text = pdf_to_text(resume.file)
 
     return await parse_proxy(resume_text, job_description)
 

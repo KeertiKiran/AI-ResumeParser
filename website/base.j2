@@ -7,6 +7,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.32.0/min/vs/loader.js"></script>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyCPPeHtlFZeCOlN_yFeun5jyWMFNqKYTEo",
+        authDomain: "resume-bot-ai.firebaseapp.com",
+        projectId: "resume-bot-ai",
+        storageBucket: "resume-bot-ai.appspot.com",
+        messagingSenderId: "120926788938",
+        appId: "1:120926788938:web:a34b7a792865ab412475b3",
+        measurementId: "G-LNJ4CKJJLZ"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
 </head>
 
 <style>

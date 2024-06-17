@@ -10,6 +10,19 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import BinaryIO, List, AnyStr, Dict, Union
 from pathlib import Path
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://3204939d18ce8486a4ac2d7d2f928e84@o1303859.ingest.us.sentry.io/4507441298866176",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
+
 
 load_dotenv()
 templates = Jinja2Templates(directory="website")

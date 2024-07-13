@@ -57,7 +57,7 @@ compliant: How much the candidate is suitable for the provided jd (jd means job 
 name: The full name of candidate (normalise it using "Title Case")
 mobile: Any possible mobile numbers of the candidate (No matter how the candidate puts his mobile number, you should always put it as a 10 digit number)
 email: Any possible emails of the candidate
-companies_worked_for: List of companies he/she worked for
+companies_worked_for: List of companies he/she worked for, consider only experience, dont consider company names that are mentioned inside the projcect description
 experience_total: Total years of experience
 experience_relevant: Years of experience relevant to the jd (job description)
 major_tech_stack: Technologies he/she worked with
